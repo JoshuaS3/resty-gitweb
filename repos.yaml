@@ -1,0 +1,79 @@
+---
+
+- name: ncurses-minesweeper
+  description: "Terminal game of Minesweeper, implemented in C with ncurses."
+  download: # Using lists instead of dictionaries for this preserves key order in Lua tables
+    - GIT git://joshstock.in/ncurses-minesweeper.git
+    - HTTPS https://git.joshstock.in/ncurses-minesweeper.git
+  urls:
+    - joshstock.in https://git.joshstock.in/ncurses-minesweeper
+    - GitHub https://github.com/JoshuaS3/ncurses-minesweeper
+    - GitLab https://gitlab.com/JoshuaS3/ncurses-minesweeper
+  location:
+    dev: "/home/josh/repos/ncurses-minesweeper/.git"
+    prod: "/home/git/ncurses-minesweeper.git"
+  specialfiles:
+    - README README.md
+    - LICENSE LICENSE
+
+- name: auto-plow
+  description: "A wheelchair motor-propelled battery-powered ESP32-driven remote control snow plow."
+  download:
+    - GIT git://joshstock.in/auto-plow.git
+    - HTTPS https://git.joshstock.in/auto-plow.git
+  urls:
+    - joshstock.in https://git.joshstock.in/auto-plow
+    - GitHub https://github.com/JoshuaS3/auto-plow
+    - GitLab https://gitlab.com/JoshuaS3/auto-plow
+  location:
+    dev: "/home/josh/repos/auto-plow/.git"
+    prod: "/home/git/auto-plow.git"
+  specialfiles:
+    - README README.md
+    - LICENSE LICENSE
+
+- name: joshstock.in
+  description: "Source for serving and static templating/compiling of https://joshstock.in."
+  download:
+    - GIT git://joshstock.in/joshstock.in.git
+    - HTTPS https://git.joshstock.in/joshstock.in.git
+  urls:
+    - joshstock.in https://git.joshstock.in/joshstock.in
+    - GitHub https://github.com/JoshuaS3/joshstock.in
+    - GitLab https://gitlab.com/JoshuaS3/joshstock.in
+  location:
+    dev: "/home/josh/repos/joshstock.in/.git"
+    prod: "/home/git/joshstock.in.git"
+  specialfiles:
+    - README README.md
+    - LICENSE LICENSE
+
+- name: lognestmonster
+  description: "A general-purpose single-header C logging library and parser for event-based logs."
+  download:
+    - GIT git://joshstock.in/lognestmonster.git
+    - HTTPS https://git.joshstock.in/lognestmonster.git
+  urls:
+    - joshstock.in https://git.joshstock.in/lognestmonster
+    - GitHub https://github.com/JoshuaS3/lognestmonster
+    - GitLab https://gitlab.com/JoshuaS3/lognestmonster
+  location:
+    dev: "/home/josh/repos/lognestmonster/.git"
+    prod: "/home/git/lognestmonster.git"
+  specialfiles:
+    - README README.md
+    - LICENSE LICENSE
+
+- name: dotfiles
+  description: "My personal dotfiles for Debian/Ubuntu."
+  download:
+    - GIT git://joshstock.in/dotfiles.git
+    - HTTPS https://git.joshstock.in/dotfiles.git
+  urls:
+    - joshstock.in https://git.joshstock.in/dotfiles
+    - GitHub https://github.com/JoshuaS3/dotfiles
+    - GitLab https://gitlab.com/JoshuaS3/dotfiles
+  location:
+    dev: "/home/josh/repos/dotfiles/.git"
+    prod: "/home/git/dotfiles.git"
+  specialfiles:
