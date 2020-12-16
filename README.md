@@ -50,7 +50,7 @@ env RESTY_GITWEB_CONFIG=/etc/[SITE]/resty-gitweb.yaml; # Wherever you put your c
    file:
 
 ```
-lua_package_path ";;/srv/[SITE]/resty-gitweb/?.lua"; # Add resty-gitweb to your Lua package path
+lua_package_path "/usr/local/lib/lua/5.1;/srv/[SITE]/resty-gitweb/?.lua;;"; # Add resty-gitweb to your Lua package path
 init_by_lua_file /srv/[SITE]/resty-gitweb/init.lua;  # Initialize modules for nginx workers
 ```
 
@@ -60,21 +60,42 @@ init_by_lua_file /srv/[SITE]/resty-gitweb/init.lua;  # Initialize modules for ng
 content_by_lua_file /srv/[SITE]/resty-gitweb/app.lua;
 ```
 
-6. Restart OpenResty/nginx
+6. Reload OpenResty/nginx to update config
 
-Note that I use "OpenResty/nginx" instead of just OpenResty; if you desire, you
-can actually use nginx with only a few OpenResty components. These are the only
+## OpenResty or nginx?
+
+Note that I use "OpenResty/nginx" instead of just OpenResty; while you can just
+install and use the pre-built
+[OpenResty](https://openresty.org/en/download.html) package, you could actually
+use nginx with only a few added OpenResty components. These are the only
 OpenResty components you actually need to
 [compile](https://www.nginx.com/resources/wiki/extending/compiling/) to use
 this package:
 
+#### nginx modules
+
 * [lua-nginx-module](https://github.com/openresty/lua-nginx-module)
+
+#### Lua libraries
+
+(run `sudo make all install LUA_VERSION=5.1` for each)
+
 * [lua-resty-core](https://github.com/openresty/lua-resty-core)
 * [lua-resty-shell](https://github.com/openresty/lua-resty-shell)
+* [lua-resty-lrucache](https://github.com/openresty/lua-resty-lrucache)
+* [lua-resty-signal](https://github.com/openresty/lua-resty-signal)
+* [lua-tablepool](https://github.com/openresty/lua-tablepool)
 
-Optionally, you can build these with OpenResty's
-[branch](https://github.com/openresty/luajit2) of LuaJIT 2 instead of the
-original.
+Note that lua-nginx-module is the only nginx module that needs to be installed
+with nginx compatibility. The other dependencies just need to be installed on
+your Lua path/cpath. **If you're compiling OpenResty components yourself, you
+may need to build them with OpenResty's
+[branch](https://github.com/openresty/luajit2) of LuaJIT 2.1.0 instead of the
+original.**
+
+(The full OpenResty package has far more precompiled OpenResty components, so
+you may just want to use that if resty-gitweb isn't the only thing you want to
+use OpenResty for.)
 
 ## Copyright and Licensing
 
