@@ -1,8 +1,9 @@
--- app.lua
+-- resty-gitweb@app.lua
 -- Entry point for git HTTP site implementation
 
 -- Copyright (c) 2020 Joshua 'joshuas3' Stockin
--- <https://joshstock.in>
+-- <https://git.joshstock.in/resty-gitweb>
+-- This software is licensed under the MIT License.
 
 local utils     = require("utils/utils")
 local git       = require("git/git_commands")
@@ -78,6 +79,7 @@ else -- repo found
 end
 
 if content ~= nil then -- TODO: HTML templates from files, static serving
+    ngx.header.content_type = "text/html"
 ngx.say([[<style>
 @import url('https://fonts.googleapis.com/css?family=Fira+Sans:400,400i,700,700i&display=swap');
 *{

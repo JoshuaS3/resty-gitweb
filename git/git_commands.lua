@@ -1,8 +1,9 @@
--- git/git_commands.lua
+-- resty-gitweb@git/git_commands.lua
 -- git commands and parser functions
 
 -- Copyright (c) 2020 Joshua 'joshuas3' Stockin
--- <https://joshstock.in>
+-- <https://git.joshstock.in/resty-gitweb>
+-- This software is licensed under the MIT License.
 
 local utils = require("utils/utils")
 

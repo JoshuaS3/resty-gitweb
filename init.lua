@@ -1,8 +1,9 @@
--- init.lua
--- Initializes scripts for OpenResty workers
+-- resty-gitweb@init.lua
+-- Preloads scripts and config for OpenResty workers
 
 -- Copyright (c) 2020 Joshua 'joshuas3' Stockin
--- <https://joshstock.in>
+-- <https://git.joshstock.in/resty-gitweb>
+-- This software is licensed under the MIT License.
 
 local git = require "git/git_commands"
 
@@ -24,6 +25,7 @@ local utils     = require "utils/utils"
 -- Load YAML configuration
 _lyaml = require "lyaml"
 
-local _yaml_config_file = io.open("/home/josh/repos/joshstock.in/lua-gitweb/repos.yaml")
+-- TODO: Read config file location from nginx env settings
+local _yaml_config_file = io.open("/home/josh/repos/joshstock.in/resty-gitweb.yaml")
 yaml_config = _lyaml.load(_yaml_config_file:read("*a"))
 _yaml_config_file:close()

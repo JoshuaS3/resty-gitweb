@@ -1,8 +1,9 @@
--- pages/tree.lua
+-- resty-gitweb@pages/tree.lua
 -- Tree page builder
 
 -- Copyright (c) 2020 Joshua 'joshuas3' Stockin
--- <https://joshstock.in>
+-- <https://git.joshstock.in/resty-gitweb>
+-- This software is licensed under the MIT License.
 
 local utils = require("utils/utils")
 local git   = require("git/git_commands")

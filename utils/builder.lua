@@ -1,8 +1,9 @@
--- builder.lua
+-- resty-gitweb@utils/builder.lua
 -- HTML builder class
 
 -- Copyright (c) 2020 Joshua 'joshuas3' Stockin
--- <https://joshstock.in>
+-- <https://git.joshstock.in/resty-gitweb>
+-- This software is licensed under the MIT License.
 
 local _M = {}
 _M.__index = _M

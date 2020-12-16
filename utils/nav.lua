@@ -1,8 +1,9 @@
--- nav.lua
+-- resty-gitweb@utils/nav.lua
 -- Builds HTML anchors for navigation
 
 -- Copyright (c) 2020 Joshua 'joshuas3' Stockin
--- <https://joshstock.in>
+-- <https://git.joshstock.in/resty-gitweb>
+-- This software is licensed under the MIT License.
 
 local _M = function(nav_data, join)
     join = join or " | "
