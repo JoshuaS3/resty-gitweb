@@ -134,7 +134,8 @@ N: No signature">GPG?</span>]]}
     text_table.rows = {}
     for i, line in pairs(string.split(utils.highlight(content, file_name), "\n")) do
         if line ~= "" then
-            table.insert(text_table.rows, {i, line})
+            local ftab = line:gsub("\t", "    ")
+            table.insert(text_table.rows, {i, ftab})
         else
             table.insert(text_table.rows, {i, "\n"}) -- preserve newlines for copying/pasting
         end
