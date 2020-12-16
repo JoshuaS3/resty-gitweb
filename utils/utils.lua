@@ -98,13 +98,12 @@ _M.highlight = function(input, file_name)
 end
 
 _M.html_sanitize = function(str)
-    return tostring(
-        tostring(str):gsub("&", "&amp;")
-                     :gsub("<", "&lt;")
-                     :gsub(">", "&gt;")
-                     :gsub("\"", "&quot;")
-                     :gsub("'", "&#039;")
-    )
+    local sanitized = tostring(str):gsub("&", "&amp;")
+                                   :gsub("<", "&lt;")
+                                   :gsub(">", "&gt;")
+                                   :gsub("\"", "&quot;")
+                                   :gsub("'", "&#039;")
+    return sanitized
 end
 
 _M.iso8601 = function(iso8601)
