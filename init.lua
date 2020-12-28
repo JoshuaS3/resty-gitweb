@@ -23,9 +23,32 @@ local tabulate  = require "utils/tabulate"
 local utils     = require "utils/utils"
 
 -- Load YAML configuration
-_lyaml = require "lyaml"
+local _lyaml = require "lyaml"
 
 -- TODO: Read config file location from nginx env settings
 local _yaml_config_file = io.open("/home/josh/repos/joshstock.in/resty-gitweb.yaml")
 yaml_config = _lyaml.load(_yaml_config_file:read("*a"))
 _yaml_config_file:close()
+
+local ffi = require("ffi")
+
+ffi.include = function(header)
+    local p = io.popen("echo '#include <"..header..">' | gcc -E -")
+    local c = {}
+    while true do
+        local line = p:read()
+        if line then
+            if not line:match("^#") then
+                table.insert(c, line)
+            end
+        else
+            break
+        end
+    end
+    p:close()
+    ffi.cdef(table.concat(c, "\n"))
+end
+
+ffi.include("git2.h")
+git2 = ffi.load("git2")
+git2.git_libgit2_init()
