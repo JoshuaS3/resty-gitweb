@@ -39,23 +39,32 @@ Linkable Libraries (installed on system path, accessible with LuaJIT's C FFI):
    your OpenResty/nginx configuration file:
 
 ```
-# resty-gitweb configuration
-env RESTY_GITWEB;          # Script won't run without this
-env RESTY_GITWEB_ENV=PROD; # PROD for Production, DEV for Development. DEV by default.
-env RESTY_GITWEB_CONFIG=/etc/[SITE]/resty-gitweb.yaml; # Wherever you put your configuration file
+# resty-gitweb won't run without this
+env RESTY_GITWEB;
+
+# PROD for Production, DEV for Development. DEV by default.
+env RESTY_GITWEB_ENV=PROD;
+
+# Wherever you put your configuration file
+env RESTY_GITWEB_CONFIG=/etc/[SITE]/resty-gitweb.yaml;
 ```
 
 4. Add the following to the `http` block in your OpenResty/nginx configuration
    file:
 
 ```
-lua_package_path "/usr/local/lib/lua/5.1;/srv/[SITE]/resty-gitweb/?.lua;;"; # Add resty-gitweb to your Lua package path
-init_by_lua_file /srv/[SITE]/resty-gitweb/init.lua;  # Initialize modules for nginx workers
+# Add resty-gitweb to your Lua package path
+lua_package_cpath "/usr/local/lib/lua/5.1;;"
+lua_package_path "/usr/local/share/lua/5.1;/srv/[SITE]/resty-gitweb/?.lua;;";
+
+# Initialize modules for nginx workers
+init_by_lua_file /srv/[SITE]/resty-gitweb/init.lua;
 ```
 
 5. And in whichever `location` block you wish to serve content:
 
 ```
+# Delegate request to OpenResty through resty-gitweb app script
 content_by_lua_file /srv/[SITE]/resty-gitweb/app.lua;
 ```
 
