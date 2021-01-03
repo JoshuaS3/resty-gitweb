@@ -5,8 +5,10 @@
 -- <https://git.joshstock.in/resty-gitweb>
 -- This software is licensed under the MIT License.
 
+local puremagic = require("puremagic")
+
 local utils = require("utils/utils")
-local git   = require("git/git_commands")
+local git   = require("git/git")
 
 local builder  = require("utils/builder")
 local tabulate = require("utils/tabulate")
@@ -124,20 +126,38 @@ N: No signature">GPG?</span>]]}
     build:add("</h3>")
 
     -- File
+    local success, repo_obj = git.repo.open(repo_dir)
+    local content, is_binary = git.read_blob(repo_obj, branch.name, file_path)
+    git.repo.free(repo_obj)
+
+    mimetype = puremagic.via_content(content, file_path)
+
     build:add([[<div class="blob">]])
 
-    local content = git.show_file(repo_dir, branch.name, file_path)
-
     local text_table = {}
-    text_table.class = "blob-lines"
     text_table.headers = {}
     text_table.rows = {}
-    for i, line in pairs(string.split(utils.highlight(content, file_name), "\n")) do
-        if line ~= "" then
-            local ftab = line:gsub("\t", "    ")
-            table.insert(text_table.rows, {i, ftab})
+    if not is_binary then
+        text_table.class = "blob lines"
+        for i, line in pairs(string.split(utils.highlight(content, file_name), "\n")) do
+            if line ~= "" then
+                local ftab = line:gsub("\t", "    ")
+                table.insert(text_table.rows, {i, ftab})
+            else
+                table.insert(text_table.rows, {i, "\n"}) -- preserve newlines for copying/pasting
+            end
+        end
+    else
+        text_table.class = "blob binary"
+        table.insert(text_table.headers, {"blob", string.format([[<span>%s</span><span style="font-weight:normal">%d bytes</span><span style="float:inherit"><a href="/%s/raw/%s/%s">download raw</a></span>]], mimetype, string.len(content), repo.name, branch.name, file_path)})
+        if string.sub(mimetype, 1, 6) == "image/" then
+            table.insert(text_table.rows, {string.format([[<img src="/%s/raw/%s/%s">]], repo.name, branch.name, file_path)})
+        elseif string.sub(mimetype, 1, 6) == "video/" then
+            table.insert(text_table.rows, {string.format([[<video controls><source src="/%s/raw/%s/%s" type="%s"></audio>]], repo.name, branch.name, file_path, mimetype)})
+        elseif string.sub(mimetype, 1, 6) == "audio/" then
+            table.insert(text_table.rows, {string.format([[<audio controls><source src="/%s/raw/%s/%s" type="%s"></audio>]], repo.name, branch.name, file_path, mimetype)})
         else
-            table.insert(text_table.rows, {i, "\n"}) -- preserve newlines for copying/pasting
+            table.insert(text_table.rows, {string.format([[----- can't preview binary content -----]], repo.name, branch.name, file_path)})
         end
     end
 

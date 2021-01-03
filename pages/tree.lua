@@ -6,7 +6,7 @@
 -- This software is licensed under the MIT License.
 
 local utils = require("utils/utils")
-local git   = require("git/git_commands")
+local git   = require("git/git")
 
 local builder  = require("utils/builder")
 local tabulate = require("utils/tabulate")
@@ -186,7 +186,10 @@ N: No signature">GPG?</span>]]}
         local l = split[#split]:lower()
         if l:match("^readme") then
             build:add("<h3>README</h3>")
-            local text = git.show_file(repo_dir, branch.name, file)
+            local success, repo = git.repo.open(repo_dir)
+            if not success then break end
+            local text = git.read_blob(repo, branch.name, file)
+            git.repo.free(repo)
             local s = l:len()
             local body = builder:new()
             if string.sub(l, s-2, s) == ".md" then

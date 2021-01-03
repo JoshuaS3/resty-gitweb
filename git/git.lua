@@ -7,6 +7,7 @@
 
 local ffi = require("ffi")
 local utils = require("utils/utils")
+local git2_error = require("git/git2_error")
 
 local _M = {}
 
@@ -16,49 +17,6 @@ local git = function(repo_dir, command)
         repo_dir, command
     )
     return utils.process(formatted_command)
-end
-
-local function git2_error(err, message)
-    if err < 0 then
-        local git2_error_message = ffi.string(git2.git_error_last().message)
-        error(string.format([[libgit2 Error - %s ("%s")]], message, git2_error_message))
-    end
-end
-
-_M.show_file = function(repo_dir, ref_name, file_path)
-    local err = 0
-
-    -- Open git repo
-    local repo_obj = ffi.new("git_repository*[1]")
-    err = git2.git_repository_open(ffi.cast("git_repository**", repo_obj), repo_dir)
-    git2_error(err, "Failed opening git repository")
-    repo_obj = repo_obj[0]
-
-    -- Get tree root
-    local tree = ffi.new("git_object*[1]")
-    err = git2.git_revparse_single(ffi.cast("git_object**", tree), repo_obj, ref_name)
-    git2_error(err, "Failed to look up tree from rev name")
-    tree = tree[0]
-
-    -- Get tree entry object (blob)
-    local blob = ffi.new("git_object*[1]")
-    err = git2.git_object_lookup_bypath(ffi.cast("git_object**", blob), tree, file_path, git2.GIT_OBJECT_BLOB)
-    git2_error(err, "Failed to look up blob")
-    blob = ffi.cast("git_blob*", blob[0])
-
-    -- Get blob content
-    local buf = ffi.new("git_buf")
-    err = git2.git_blob_filter(buf, blob, file_path, nil)
-    git2_error(err, "Failed to filter blob")
-    local raw = ffi.string(buf.ptr)
-
-    -- Free everything
-    git2.git_buf_free(buf)
-    git2.git_blob_free(blob)
-    git2.git_object_free(tree)
-    git2.git_repository_free(repo_obj)
-
-    return raw
 end
 
 _M.get_head = function(repo_dir, ref_name)
@@ -293,4 +251,6 @@ _M.list_tree = function(repo_dir, hash, path)
     return ret
 end
 
+_M.repo = require("git/repo")
+_M.read_blob = require("git/read_blob")
 return _M

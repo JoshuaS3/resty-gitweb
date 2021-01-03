@@ -6,7 +6,7 @@
 -- This software is licensed under the MIT License.
 
 local utils = require("utils/utils")
-local git   = require("git/git_commands")
+local git   = require("git/git")
 
 local builder  = require("utils/builder")
 local tabulate = require("utils/tabulate")

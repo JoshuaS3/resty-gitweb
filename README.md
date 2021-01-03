@@ -9,7 +9,6 @@ Lua path/cpath):
 
 | Module | Description |
 | ------ | ----------- |
-| [lfs](https://github.com/keplerproject/luafilesystem) | Filesystem API |
 | [lyaml](https://github.com/gvvaughan/lyaml) | Reads and parses YAML config files |
 | [puremagic](https://github.com/wbond/puremagic) | MIME type by content, used in blob rendering |
 | [etlua](https://github.com/leafo/etlua) | Embedded Lua templating (for HTML rendering) |
@@ -25,7 +24,7 @@ Linkable Libraries (installed on system path, accessible with LuaJIT's C FFI):
 
 | Library | Description |
 | ------- | ----------- |
-| [libgit2](https://github.com/libgit2/libgit2) | Linkable C API for Git |
+| [libgit2](https://github.com/libgit2/libgit2) | Dynamically linkable C API for Git |
 
 ## Using
 

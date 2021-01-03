@@ -5,7 +5,7 @@
 -- <https://git.joshstock.in/resty-gitweb>
 -- This software is licensed under the MIT License.
 
-local git = require "git/git_commands"
+local git = require "git/git"
 
 local pages_blob     = require "pages/blob"
 local pages_commit   = require "pages/commit"
