@@ -128,6 +128,7 @@ N: No signature">GPG?</span>]]}
     -- File
     local success, repo_obj = git.repo.open(repo_dir)
     local content, is_binary = git.read_blob(repo_obj, branch.name, file_path)
+    local content_size = string.len(content)
     git.repo.free(repo_obj)
 
     mimetype = puremagic.via_content(content, file_path)
@@ -137,28 +138,58 @@ N: No signature">GPG?</span>]]}
     local text_table = {}
     text_table.headers = {}
     text_table.rows = {}
+
     if not is_binary then
+
         text_table.class = "blob lines"
-        for i, line in pairs(string.split(utils.highlight(content, file_name), "\n")) do
-            if line ~= "" then
-                local ftab = line:gsub("\t", "    ")
-                table.insert(text_table.rows, {i, ftab})
-            else
-                table.insert(text_table.rows, {i, "\n"}) -- preserve newlines for copying/pasting
+
+        if content_size < 100000 then
+            for i, line in pairs(string.split(utils.highlight(content, file_name), "\n")) do
+                if line ~= "" then
+                    local ftab = line:gsub("\t", "    ")
+                    table.insert(text_table.rows, {i, ftab})
+                else
+                    table.insert(text_table.rows, {i, "\n"}) -- preserve newlines for copying/pasting
+                end
             end
-        end
-    else
-        text_table.class = "blob binary"
-        table.insert(text_table.headers, {"blob", string.format([[<span>%s</span><span style="font-weight:normal">%d bytes</span><span style="float:inherit"><a href="/%s/raw/%s/%s">download raw</a></span>]], mimetype, string.len(content), repo.name, branch.name, file_path)})
-        if string.sub(mimetype, 1, 6) == "image/" then
-            table.insert(text_table.rows, {string.format([[<img src="/%s/raw/%s/%s">]], repo.name, branch.name, file_path)})
-        elseif string.sub(mimetype, 1, 6) == "video/" then
-            table.insert(text_table.rows, {string.format([[<video controls><source src="/%s/raw/%s/%s" type="%s"></audio>]], repo.name, branch.name, file_path, mimetype)})
-        elseif string.sub(mimetype, 1, 6) == "audio/" then
-            table.insert(text_table.rows, {string.format([[<audio controls><source src="/%s/raw/%s/%s" type="%s"></audio>]], repo.name, branch.name, file_path, mimetype)})
         else
-            table.insert(text_table.rows, {string.format([[----- can't preview binary content -----]], repo.name, branch.name, file_path)})
+            table.insert(text_table.rows, {1, [[----- can't preview content bigger than 100KB -----]]})
         end
+
+    else
+
+        text_table.class = "blob binary"
+        table.insert(text_table.headers, {
+            "blob",
+            string.format(
+                [[<span>%s</span><span style="font-weight:normal">%d bytes</span><span style="float:inherit"><a href="/%s/raw/%s/%s">download raw</a></span>]],
+                mimetype,
+                content_size,
+                repo.name,
+                branch.name,
+                file_path
+            )
+        })
+
+        if content_size < 15000000 then
+
+            if string.sub(mimetype, 1, 6) == "image/" then
+                table.insert(text_table.rows, {string.format([[<img src="/%s/raw/%s/%s">]], repo.name, branch.name, file_path)})
+
+            elseif string.sub(mimetype, 1, 6) == "video/" then
+                table.insert(text_table.rows, {string.format([[<video controls><source src="/%s/raw/%s/%s" type="%s"></audio>]], repo.name, branch.name, file_path, mimetype)})
+
+            elseif string.sub(mimetype, 1, 6) == "audio/" then
+                table.insert(text_table.rows, {string.format([[<audio controls><source src="/%s/raw/%s/%s" type="%s"></audio>]], repo.name, branch.name, file_path, mimetype)})
+
+            else
+                table.insert(text_table.rows, {[[----- can't preview binary content -----]]})
+            end
+
+        else
+            table.insert(text_table.rows, {[[----- can't preview binary content bigger than 15MB -----]]})
+        end
+
     end
 
     build:add(tabulate(text_table))
