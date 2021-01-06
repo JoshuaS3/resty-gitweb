@@ -135,6 +135,19 @@ N: No signature">GPG?</span>]]}
 
     build:add([[<div class="blob">]])
 
+    build:add(
+        string.format(
+            [[<div class="blob header"><span>%s</span><span style="font-weight:normal">%d bytes</span><span style="float: right"><a href="/%s/raw/%s/%s">download raw</a></span></div>]],
+            mimetype,
+            content_size,
+            repo.name,
+            branch.name,
+            file_path
+        )
+    )
+
+    build:add([[<div class="blob table">]])
+
     local text_table = {}
     text_table.headers = {}
     text_table.rows = {}
@@ -159,17 +172,6 @@ N: No signature">GPG?</span>]]}
     else
 
         text_table.class = "blob binary"
-        table.insert(text_table.headers, {
-            "blob",
-            string.format(
-                [[<span>%s</span><span style="font-weight:normal">%d bytes</span><span style="float:inherit"><a href="/%s/raw/%s/%s">download raw</a></span>]],
-                mimetype,
-                content_size,
-                repo.name,
-                branch.name,
-                file_path
-            )
-        })
 
         if content_size < 15000000 then
 
@@ -193,6 +195,8 @@ N: No signature">GPG?</span>]]}
     end
 
     build:add(tabulate(text_table))
+
+    build:add("</div>")
 
     build:add("</div>")
 

@@ -15,6 +15,8 @@ local parsed_uri = parse_uri()
 local view
 local content
 
+-- TODO: Rewrite app script completely
+
 if parsed_uri.repo == nil then
     content = require("pages/index")(yaml_config)
 else -- repo found
@@ -180,9 +182,20 @@ if content ~= nil then -- TODO: HTML templates from files, static serving
         border-radius:4px;
         }
 
-        div.blob {
-            border:1px solid #858585;
+        div.blob.table {
             overflow-x: auto;
+            border:1px solid #858585;
+            border-top: none;
+        }
+        div.blob.header {
+            font-family: monospace;
+            font-size:14px;
+            font-weight: bold;
+            border:1px solid #000;
+            background-color:#dedede;
+        }
+        div.blob.header span{
+            margin:0 4px;
         }
         table.blob {
             font-size:1em;
@@ -197,13 +210,7 @@ if content ~= nil then -- TODO: HTML templates from files, static serving
             border:none;
             padding:1px 5px;
         }
-        table.blob.binary th {
-            max-width:100%;
-        }
-        table.blob.binary th span:not(:last-child){
-            margin-right:10px;
-        }
-        table.blob.binary tr, table.blob.binary td{
+        table.blob.binary td{
             text-align:center;
             padding: 0;
         }
