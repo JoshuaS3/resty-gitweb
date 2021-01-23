@@ -34,7 +34,9 @@ local _M = function(repos)
         section:add([[<p class="description">]]..repo.description.."</p>")
 
         -- Latest Commit table
-        local branch = git.get_head(repo_dir)
+        local exists, repo_obj = git.repo.open(repo_dir)
+        local branch = git.find_rev(repo_obj, "HEAD")
+        git.repo.free(repo_obj)
         local commit = git.commit(repo_dir, branch.name)
 
         section:add(string.format("<h3>Latest Commit (%s)</h3>", branch.name))
@@ -94,10 +96,12 @@ N: No signature">GPG?</span>]]}
         section:add([[<div class="nav">]])
         section:add(nav(navlinks))
 
-        local gitlab_url = string.split(repo.urls[3], " ")[2]
-        local github_url = string.split(repo.urls[2], " ")[2]
-        section:add(string.format([[<span style="float:right"><a href="%s">[on GitLab]</a></span>]], gitlab_url))
-        section:add(string.format([[<span style="float:right;margin-right:10px"><a href="%s">[on GitHub]</a></span>]], github_url))
+        for i = #repo.urls, 1, -1 do
+            local split = string.split(repo.urls[i], " ")
+            local name = split[1]
+            local url = split[2]
+            section:add(string.format([[<span style="float:right;margin-left:10px"><a href="%s">[on %s]</a></span>]], url, name))
+        end
 
         section:add("</div>") -- nav
 

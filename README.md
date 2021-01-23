@@ -40,7 +40,7 @@ Linkable Libraries (installed on system path, accessible with LuaJIT's C FFI):
 
 ```
 # resty-gitweb won't run without this
-env RESTY_GITWEB;
+env RESTY_GITWEB_ENABLED=;
 
 # PROD for Production, DEV for Development. DEV by default.
 env RESTY_GITWEB_ENV=PROD;

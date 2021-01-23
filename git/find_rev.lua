@@ -15,7 +15,7 @@ local _M = function(repo_obj, rev)
     -- Get object/reference
     local object = ffi.new("git_object*[1]")
     local reference = ffi.new("git_reference*[1]")
-    err = git2.git_revparse_ext(ffi.cast("git_object**", object), ffi.cast("git_reference**", reference), repo_obj, ref_name)
+    err = git2.git_revparse_ext(ffi.cast("git_object**", object), ffi.cast("git_reference**", reference), repo_obj, rev)
     git2_error(err, "Failed to find reference")
     object = object[0]
     reference = reference[0]

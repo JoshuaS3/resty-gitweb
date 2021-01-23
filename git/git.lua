@@ -19,67 +19,6 @@ local git = function(repo_dir, command)
     return utils.process(formatted_command)
 end
 
-_M.get_head = function(repo_dir, ref_name)
-    local err = 0
-    ref_name = ref_name or "HEAD"
-
-    -- Open git repo
-    local repo_obj = ffi.new("git_repository*[1]")
-    err = git2.git_repository_open(ffi.cast("git_repository**", repo_obj), repo_dir)
-    git2_error(err, "Failed opening git repository")
-    repo_obj = repo_obj[0]
-
-    -- Get object/reference
-    local object = ffi.new("git_object*[1]")
-    local reference = ffi.new("git_reference*[1]")
-    err = git2.git_revparse_ext(ffi.cast("git_object**", object), ffi.cast("git_reference**", reference), repo_obj, ref_name)
-    git2_error(err, "Failed to find reference")
-    object = object[0]
-    reference = reference[0]
-
-    -- Get full name if intermediate reference exists
-    local name = ref_name
-    if reference ~= nil then
-        local ref_type = git2.git_reference_type(reference)
-        if ref_type == git2.GIT_REFERENCE_SYMBOLIC then
-            name = ffi.string(git2.git_reference_symbolic_target(reference))
-        else
-            name = ffi.string(git2.git_reference_name(reference))
-        end
-    end
-
-    -- Get OID
-    local oid = git2.git_object_id(object)
-
-    -- Format oid as SHA1 hash
-    local hash = ffi.new("char[41]") -- SHA1 length (40 chars) + \0
-    err = git2.git_oid_fmt(hash, oid)
-    git2_error(err, "Failed formatting OID")
-    hash = ffi.string(hash)
-
-    -- Free all
-    git2.git_object_free(object)
-    if reference ~= nil then
-        git2.git_reference_free(reference)
-    end
-    git2.git_repository_free(repo_obj)
-
-    -- Format
-    local ref = {}
-    ref.full = name
-    if name:match("^refs/heads/") then
-        ref.name = string.sub(name, 12, string.len(name))
-    elseif name:match("^refs/tags/") then
-        ref.name = string.sub(name, 11, string.len(name))
-    else
-        ref.name = ref_name -- just pass input as default output
-    end
-    ref.hash = hash
-    ref.shorthash = string.sub(hash, 1, 7)
-
-    return ref
-end
-
 _M.count = function(repo_dir, hash)
     hash = hash or "@"
     local output = git(repo_dir, "rev-list --count "..hash.." --")
@@ -151,63 +90,6 @@ _M.commit = function(repo_dir, hash)
     return commit
 end
 
-_M.list_refs = function(repo_dir)
-    -- Open git repo
-    local repo_obj = ffi.new("git_repository*[1]")
-    local err = git2.git_repository_open(ffi.cast("git_repository**", repo_obj), repo_dir)
-    repo_obj = repo_obj[0]
-
-    -- List refs
-    local refs = ffi.new("git_strarray")
-    local err = git2.git_reference_list(ffi.cast("git_strarray*", refs), repo_obj)
-
-    local ret = {}
-    ret.heads = {}
-    ret.tags = {}
-
-    for i = 0, tonumber(refs.count)-1 do
-
-        local name = ffi.string(refs.strings[i])
-
-        local dest
-        local prefix_len
-        if name:match("^refs/heads/") then
-            dest = ret.heads
-            prefix_len = 12
-        elseif name:match("^refs/tags/") then
-            dest = ret.tags
-            prefix_len = 11
-        end
-
-        if dest then
-            local oid = ffi.new("git_oid")
-            local err = git2.git_reference_name_to_id(ffi.cast("git_oid*", oid), repo_obj, refs.strings[i])
-
-            -- Format oid as SHA1 hash
-            local hash = ffi.new("char[41]") -- SHA1 length (40 chars) + \0
-            local err = git2.git_oid_fmt(hash, ffi.cast("git_oid*", oid))
-            hash = ffi.string(hash)
-
-            local ref = {}
-            ref.name = string.sub(name, prefix_len, string.len(name))
-            ref.full = name
-            ref.hash = hash
-            ref.shorthash = string.sub(hash, 1, 7)
-            table.insert(dest, ref)
-        end
-
-    end
-
-    if refs then
-        git2.git_strarray_free(ffi.cast("git_strarray*", refs))
-    end
-    if repo_obj then
-        git2.git_repository_free(ffi.cast("git_repository*", repo_obj))
-    end
-
-    return ret
-end
-
 local list_dirs = function(repo_dir, hash, path)
     hash = hash or "@"
     path = path or ""
@@ -251,6 +133,8 @@ _M.list_tree = function(repo_dir, hash, path)
     return ret
 end
 
-_M.repo = require("git/repo")
+_M.repo      = require("git/repo")
 _M.read_blob = require("git/read_blob")
+_M.find_rev  = require("git/find_rev")
+_M.list_refs = require("git/list_refs")
 return _M

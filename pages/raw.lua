@@ -15,10 +15,10 @@ local _M = function(repo, repo_dir, branch, file_path)
     if file_path ~= "" then -- make sure path exists
         local path_tree = git.list_tree(repo_dir, branch.name, file_path)
         if #path_tree.files == 0 then -- no path found
-            return nil
+            error("file "..file_path.." is nonexistent")
         end
     else
-        return nil
+        error("file path is empty")
     end
 
     local build = builder:new()

@@ -18,7 +18,7 @@ local _M = function(repo, repo_dir, branch, path)
     if path ~= "" then -- make sure path exists
         local path_tree = git.list_tree(repo_dir, branch.name, string.sub(path, 1, path:len() - 1))
         if #path_tree.dirs == 0 then -- no path found
-            return nil
+            error("tree "..path.." is nonexistent")
         end
     end
 

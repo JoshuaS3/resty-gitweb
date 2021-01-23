@@ -18,23 +18,29 @@ local content
 -- TODO: Rewrite app script completely
 
 if parsed_uri.repo == nil then
-    content = require("pages/index")(yaml_config)
+    content = require("pages/index")(CONFIG)
 else -- repo found
     local repo
-    for _,r in pairs(yaml_config) do
+    for _,r in pairs(CONFIG) do
         if parsed_uri.repo == r.name then
             repo = r
             break
         end
     end
     if repo then
-        local repo_dir = repo.location.dev
+        repo.loc = repo.location.dev
+        local success, repo_libgit2_object = git.repo.open(repo.loc)
+        if not success then
+            error("Failed to open repository at "..repo.loc)
+        end
+        repo.obj = repo_libgit2_object
         view = parsed_uri.parts[2] or "tree"
         local branch
 
-        if pcall(function() -- if branch is real
-            branch = git.get_head(repo_dir, parsed_uri.parts[3]) -- if parts[3] is nil, defaults to "HEAD"
-        end) then
+        local res, status = pcall(function() -- if branch is real
+            branch = git.find_rev(repo.obj, parsed_uri.parts[3]) -- if parts[3] is nil, defaults to "HEAD"
+        end)
+        if res then
             local res, status = pcall(function() -- effectively catch any errors, 404 if any
                 if view == "tree" then -- directory display (with automatic README rendering)
                     local path = parsed_uri.parts
@@ -47,7 +53,7 @@ else -- repo found
                         path = ""
                     end
 
-                    content = require("pages/tree")(repo, repo_dir, branch, path)
+                    content = require("pages/tree")(repo, repo.loc, branch, path)
                 elseif view == "blob" then
                     local path = parsed_uri.parts
                     table.remove(path, 3) -- branch
@@ -59,7 +65,7 @@ else -- repo found
                         path = ""
                     end
 
-                    content = require("pages/blob")(repo, repo_dir, branch, path)
+                    content = require("pages/blob")(repo, repo.loc, branch, path)
                 elseif view == "raw" then
                     local path = parsed_uri.parts
                     table.remove(path, 3) -- branch
@@ -71,7 +77,7 @@ else -- repo found
                         path = ""
                     end
 
-                    content, is_binary = require("pages/raw")(repo, repo_dir, branch, path)
+                    content, is_binary = require("pages/raw")(repo, repo.loc, branch, path)
                     if content then
                         if is_binary then
                             mimetype = puremagic.via_content(content.body, path)
@@ -82,23 +88,32 @@ else -- repo found
                     end
 
                 elseif view == "log" then
-                    content = require("pages/log")(repo, repo_dir, branch, ngx.var.arg_n, ngx.var.arg_skip)
+                    content = require("pages/log")(repo, repo.loc, branch, ngx.var.arg_n, ngx.var.arg_skip)
                 elseif view == "refs" then
-                    content = require("pages/refs")(repo, repo_dir, branch)
+                    content = require("pages/refs")(repo, repo.loc, branch)
                 elseif view == "download" then
-                    content = require("pages/download")(repo, repo_dir, branch)
+                    content = require("pages/download")(repo, repo.loc, branch)
                 elseif view == "commit" then
                     -- /repo/commit/[COMMIT HASH]
+                else
+                    error("bad view "..view)
                 end
             end) -- pcall
 
             if res ~= true then
-                ngx.say(res)
-                ngx.say(status)
+                if not PRODUCTION then
+                    ngx.say(res)
+                    ngx.say(status)
+                end
                 ngx.exit(ngx.HTTP_NOT_FOUND)
                 return
             end
+        elseif not PRODUCTION then -- branch doesn't exist, show an error in non-prod environments
+            ngx.say(res)
+            ngx.say(status)
+            ngx.exit(ngx.HTTP_NOT_FOUND)
         end
+        git.repo.free(repo.obj)
     end
 end
 
