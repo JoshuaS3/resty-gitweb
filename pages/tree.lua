@@ -34,8 +34,6 @@ local _M = function(repo, repo_dir, branch, path)
         {string.format("/%s", repo.name),                      repo.name},
         {string.format("/%s/tree/%s", repo.name, branch.name), branch.name},
     }
-    build:add("<h2>"..nav(breadcrumb_nav, " / ").."</h2>")
-    build:add("<p>"..repo.description.."</p>")
 
     -- Navigation links
     local navlinks = {
@@ -53,12 +51,16 @@ local _M = function(repo, repo_dir, branch, path)
         })
     end
 
-    build:add([[<div class="nav">]])
-    build:add(nav(navlinks))
-    build:add("</div>")
+    build{
+        build.h2{nav(breadcrumb_nav, " / ")},
+        build.p{repo.description},
+        build.div{class="nav", nav(navlinks)}
+    }
 
     -- Latest Commit table
-    build:add("<h3>Latest Commit</h3>")
+    build{
+        build.h3{"Latest Commit"}
+    }
 
     local commit = git.log(repo_dir, branch.name, path.."/", 1, 0, true)[1]
 
@@ -98,28 +100,24 @@ N: No signature">GPG?</span>]]}
         commit.gpggood
     })
 
-    build:add(tabulate(commits_table_data))
+    build{tabulate(commits_table_data)}
 
     -- Tree/files table
-    local title = builder:new()
+    local title = build.h3{"Tree"}
 
-    if path == "" then
-        title:add("<h3>Tree</h3>")
-    else -- build path with hyperlinks for section header
-        title:add("<h3>Tree")
+    if path ~= "" then -- build path with hyperlinks for section header
         local split = string.split(path, "/")
         table.remove(split, #split)
         local base = "/"..repo.name.."/tree/"..branch.name
-        title:add(string.format([[ @ <a href="%s">%s</a>]], base, repo.name))
-        local build = ""
+        title{" @ ", build.a{href=base, repo.name}}
+        local b = ""
         for _, part in pairs(split) do
-            build = build.."/"..part
-            title:add(string.format([[ / <a href="%s%s">%s</a>]], base, build, part))
+            b = b.."/"..part
+            title{" / ", build.a{href=base..b, part}}
         end
-        title:add("</h3>")
     end
 
-    build:add(title.body)
+    build{title}
 
     local files = git.list_tree(repo_dir, branch.name, path)
 
@@ -132,8 +130,8 @@ N: No signature">GPG?</span>]]}
         {"shorthash", "Hash"}}
     files_table_data.rows = {}
 
-    local file_icon   = [[<img style="width:1em;height:1em;vertical-align:middle;margin-right:0.5em;" src="https://joshuas3.s3.amazonaws.com/svg/file.svg"/>]]
-    local folder_icon = [[<img style="width:1em;height:1em;vertical-align:middle;margin-right:0.5em;fill:#ffe9a2;" src="https://joshuas3.s3.amazonaws.com/svg/folder.svg"/>]]
+    local file_icon   = [[<img style="width:1em;height:1em;vertical-align:middle;margin-right:0.5em;" alt="file" src="https://joshuas3.s3.amazonaws.com/svg/file.svg"/>]]
+    local folder_icon = [[<img style="width:1em;height:1em;vertical-align:middle;margin-right:0.5em;fill:#ffe9a2;" alt="folder" src="https://joshuas3.s3.amazonaws.com/svg/folder.svg"/>]]
 
     -- .. directory
     if path ~= "" then
@@ -178,26 +176,24 @@ N: No signature">GPG?</span>]]}
         })
     end
 
-    build:add(tabulate(files_table_data))
+    build{tabulate(files_table_data)}
 
     -- Look for and render README if it exists
     for _, file in pairs(files.files) do
         local split = string.split(file, "/")
         local l = split[#split]:lower()
         if l:match("^readme") then
-            build:add("<h3>README</h3>")
+            build{build.h3{"README"}}
             local success, repo = git.repo.open(repo_dir)
             if not success then break end
             local text = git.read_blob(repo, branch.name, file)
             git.repo.free(repo)
             local s = l:len()
-            local body = builder:new()
             if string.sub(l, s-2, s) == ".md" then
-                body:add([[<div class="markdown">]]..utils.markdown(text).."</div>")
+                build{build.div{class="markdown", utils.markdown(text)}}
             else
-                body:add("<pre><code>"..text.."</code></pre>")
+                build{build.pre{build.code{text}}}
             end
-            build:add(body.body)
             break
         end
     end

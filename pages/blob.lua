@@ -33,8 +33,10 @@ local _M = function(repo, repo_dir, branch, file_path)
         {string.format("/%s", repo.name),                      repo.name},
         {string.format("/%s/tree/%s", repo.name, branch.name), branch.name},
     }
-    build:add("<h2>"..nav(breadcrumb_nav, " / ").."</h2>")
-    build:add("<p>"..repo.description.."</p>")
+    build{
+        build.h2{nav(breadcrumb_nav, " / ")},
+        build.p{repo.description}
+    }
 
     -- Navigation links
     local navlinks = {
@@ -52,13 +54,12 @@ local _M = function(repo, repo_dir, branch, file_path)
         })
     end
 
-    build:add([[<div class="nav">]])
-    build:add(nav(navlinks))
-    build:add("</div>")
+    build{
+        build.div{class="nav", nav(navlinks)},
+        build.h3{"Latest Commit"}
+    }
 
     -- Latest Commit table
-    build:add("<h3>Latest Commit</h3>")
-
     local commit = git.log(repo_dir, branch.name, file_path, 1, 0, true)[1]
 
     local commits_table_data = {}
@@ -97,10 +98,10 @@ N: No signature">GPG?</span>]]}
         commit.gpggood
     })
 
-    build:add(tabulate(commits_table_data))
+    build{tabulate(commits_table_data)}
 
     -- Tree breadcrumb
-    build:add("<h3>Blob @ ")
+    local blobheader = build.h3{"Blob @ "}
 
     local treelinks = {
         {string.format("/%s/tree/%s", repo.name, branch.name), repo.name}
@@ -122,8 +123,8 @@ N: No signature">GPG?</span>]]}
         string.format("/%s/blob/%s"..path_string, repo.name, branch.name), file_name
     })
 
-    build:add(nav(treelinks, " / "))
-    build:add("</h3>")
+    blobheader{nav(treelinks, " / ")}
+    build{blobheader}
 
     -- File
     local success, repo_obj = git.repo.open(repo_dir)
@@ -133,9 +134,10 @@ N: No signature">GPG?</span>]]}
 
     mimetype = puremagic.via_content(content, file_path)
 
-    build:add([[<div class="blob">]])
+    local blob = build.div{class="blob"}
+    build{blob}
 
-    build:add(
+    blob{
         string.format(
             [[<div class="blob header"><span>%s</span><span style="font-weight:normal">%d bytes</span><span style="float: right"><a href="/%s/raw/%s/%s">download raw</a></span></div>]],
             mimetype,
@@ -144,9 +146,9 @@ N: No signature">GPG?</span>]]}
             branch.name,
             file_path
         )
-    )
+    }
 
-    build:add([[<div class="blob table">]])
+    blob{[[<div class="blob table">]]}
 
     local text_table = {}
     text_table.headers = {}
@@ -160,9 +162,9 @@ N: No signature">GPG?</span>]]}
             for i, line in pairs(string.split(utils.highlight(content, file_name), "\n")) do
                 if line ~= "" then
                     local ftab = line:gsub("\t", "    ")
-                    table.insert(text_table.rows, {i, ftab})
+                    table.insert(text_table.rows, {string.format([[<a id="L%d" href="#L%d">%d</a>]], i, i, i), ftab})
                 else
-                    table.insert(text_table.rows, {i, "\n"}) -- preserve newlines for copying/pasting
+                    table.insert(text_table.rows, {string.format([[<a id="L%d" href="#L%d">%d</a>]], i, i, i), "\n"}) -- preserve newlines for copying/pasting
                 end
             end
         else
@@ -194,11 +196,7 @@ N: No signature">GPG?</span>]]}
 
     end
 
-    build:add(tabulate(text_table))
-
-    build:add("</div>")
-
-    build:add("</div>")
+    blob{tabulate(text_table)}
 
     return build
 end

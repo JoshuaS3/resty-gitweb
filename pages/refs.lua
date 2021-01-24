@@ -20,8 +20,10 @@ local _M = function(repo, repo_dir, branch)
         {string.format("/%s", repo.name),      repo.name},
         {string.format("/%s/refs", repo.name), "refs"},
     }
-    build:add("<h2>"..nav(breadcrumb_nav, " / ").."</h2>")
-    build:add("<p>"..repo.description.."</p>")
+    build{
+        build.h2{nav(breadcrumb_nav, " / ")},
+        build.p{repo.description}
+    }
 
     -- Navigation links
     local navlinks = {
@@ -39,16 +41,16 @@ local _M = function(repo, repo_dir, branch)
         })
     end
 
-    build:add([[<div class="nav">]])
-    build:add(nav(navlinks))
-    build:add("</div>")
+    build{
+        build.div{nav(navlinks)}
+    }
 
     -- Refs
-    local all_refs = git.list_refs(repo_dir)
+    local all_refs = git.list_refs(repo.obj)
 
     -- Branches
     if #all_refs.heads > 0 then
-        build:add("<h3>Branches</h3>")
+        build{build.h3{"Branches"}}
 
         local branches_table_data = {}
         branches_table_data.class = "branches"
@@ -67,12 +69,12 @@ local _M = function(repo, repo_dir, branch)
             })
         end
 
-        build:add(tabulate(branches_table_data))
+        build{tabulate(branches_table_data)}
     end
 
     -- Tags
     if #all_refs.tags > 0 then
-        build:add("<h3>Tags</h3>")
+        build{build.h3{"Tags"}}
 
         local tags_table_data = {}
         tags_table_data.class = "tags"
@@ -90,7 +92,7 @@ local _M = function(repo, repo_dir, branch)
             })
         end
 
-        build:add(tabulate(tags_table_data))
+        build{tabulate(tags_table_data)}
     end
 
     return build

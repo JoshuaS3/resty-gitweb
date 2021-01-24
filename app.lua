@@ -120,7 +120,11 @@ end
 if content ~= nil then -- TODO: HTML templates from files, static serving
     if view ~= "raw" then
         ngx.header.content_type = "text/html"
-        ngx.say([[<style>
+        ngx.say([[<!DOCTYPE html><html lang="en"><head>]])
+        ngx.say([[<link rel="stylesheet" href="https://raw.githubusercontent.com/necolas/normalize.css/master/normalize.css">]])
+
+        ngx.say(
+            [[<style>
         @import url('https://fonts.googleapis.com/css?family=Fira+Sans:400,400i,700,700i&display=swap');
         *{
         box-sizing:border-box;
@@ -158,6 +162,7 @@ if content ~= nil then -- TODO: HTML templates from files, static serving
             overflow:auto;
             font-family: monospace;
             font-size:14px;
+            line-height:1.2;
         }
         table.files td:first-child{
             padding-right:calc(5px + 1em);
@@ -257,39 +262,41 @@ if content ~= nil then -- TODO: HTML templates from files, static serving
         a:hover{
             text-decoration:underline;
         }
-        .home-banner h1 {
+        center.index-banner h1.title {
             margin-top:40px;
             margin-bottom:0;
         }
-        .home-banner p {
+        center.index-banner p.description {
             margin-top:8px;
             margin-bottom:30px;
         }
-        .repo-section .name {
+        div.repo-section .name {
             margin-bottom:0;
         }
-        .repo-section h3 {
+        div.repo-section h3 {
             margin-top:10px;
         }
-        .repo-section .description {
+        div.repo-section .description {
             margin-top:8px;
         }
-        .repo-section .nav {
+        div.repo-section .nav {
             margin-top:10px;
         }
         hr {
             margin: 20px 0;
         }
         </style>]])
+        ngx.say("</head><body>")
 
         if parsed_uri.repo then
             local arrow_left_circle = [[<img style="width:1.2em;height:1.2em;vertical-align:middle;margin-right:0.2em" src="https://joshuas3.s3.amazonaws.com/svg/arrow-left.svg"/>]]
             ngx.say("<a style=\"margin-left:-1.35em\" href=\"/\">"..arrow_left_circle.."<span style=\"vertical-align:middle\">Index</span></a>")
         end
         ngx.print(content:build())
+        ngx.say("</body></html>")
     else
         ngx.header.content_type = content.type
-        ngx.print(content.body)
+        ngx.print(content:build())
     end
     ngx.exit(ngx.HTTP_OK)
     return

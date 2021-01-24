@@ -15,23 +15,17 @@ local nav      = require("utils/nav")
 local _M = function(repos)
     local build = builder:new()
 
-    build:add("<center class=\"home-banner\">")
-    build:add("<h1>Git Repositories</h1>")
-    build:add("<p>Index of the git repositories hosted on this server</p>")
-    build:add("</center>")
+    local center = build.center{
+        class="index-banner",
+        build.h1{class="title", "Git Repositories"},
+        build.p{class="description", "Index of the git repositories hosted on this server"}
+    }
 
-    build:add("<div class=\"index-repolist\">")
-    local repo_sections = {}
+    local repolist = build.div{class="index-repolist"}
+
     for _, repo in pairs(repos) do
-        local section = builder:new()
-
         local url = "/"..repo.name
         local repo_dir = repo.location.dev
-
-        -- Title and description
-        section:add([[<div class="repo-section">]])
-        section:add(string.format([[<h2 class="name">%s <a href="/%s" style="font-size:0.65em">[more]</a></h2>]], repo.name, repo.name))
-        section:add([[<p class="description">]]..repo.description.."</p>")
 
         -- Latest Commit table
         local exists, repo_obj = git.repo.open(repo_dir)
@@ -39,7 +33,18 @@ local _M = function(repos)
         git.repo.free(repo_obj)
         local commit = git.commit(repo_dir, branch.name)
 
-        section:add(string.format("<h3>Latest Commit (%s)</h3>", branch.name))
+        -- Title and description
+        local section = build.div{
+            class="repo-section",
+            build.h2{
+                class="name",
+                repo.name, " ", build.a{
+                    href="/"..repo.name, style="font-size:0.65em", "[more]"
+                }
+            },
+            build.p{class="description", repo.description},
+            build.h3{"Latest Commit (", branch.name, ")"}
+        }
 
         local commits_table_data = {}
         commits_table_data.class = "log"
@@ -75,7 +80,7 @@ N: No signature">GPG?</span>]]}
             commit.gpggood
         }}
 
-        section:add(tabulate(commits_table_data))
+        section{tabulate(commits_table_data)}
 
         -- Navigation links
         local navlinks = {
@@ -93,27 +98,31 @@ N: No signature">GPG?</span>]]}
             })
         end
 
-        section:add([[<div class="nav">]])
-        section:add(nav(navlinks))
+        local navdiv = build.div{class="nav", nav(navlinks)}
 
         for i = #repo.urls, 1, -1 do
             local split = string.split(repo.urls[i], " ")
             local name = split[1]
             local url = split[2]
-            section:add(string.format([[<span style="float:right;margin-left:10px"><a href="%s">[on %s]</a></span>]], url, name))
+            navdiv{
+                build.span{
+                    style="float:right; margin-left:10px",
+                    build.a{
+                        href=url, "[on ", name, "]"
+                    }
+                }
+            }
         end
 
-        section:add("</div>") -- nav
+        section{navdiv}
 
-        section:add("</div>") -- repo-section
-
-        table.insert(repo_sections, section.body)
+        repolist{section}
     end
 
-    -- Format repo sections
-    build:add(table.concat(repo_sections, "<hr>"))
-
-    build:add("</div>")
+    for i,v in pairs(repolist._objects) do
+        repolist._objects[i] = v:build()
+    end
+    build{center, table.concat(repolist._objects, "<hr>")}
 
     return build
 end

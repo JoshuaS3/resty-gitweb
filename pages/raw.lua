@@ -28,7 +28,7 @@ local _M = function(repo, repo_dir, branch, file_path)
     local content, is_binary = git.read_blob(repo_obj, branch.name, file_path)
     git.repo.free(repo_obj)
 
-    build:add(content)
+    build{content}
 
     return build, is_binary
 end

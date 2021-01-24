@@ -8,7 +8,7 @@
 local ffi = require("ffi")
 local git2_error = require("git/git2_error")
 
-_M.list_refs = function(repo_obj)
+_M = function(repo_obj)
     -- List refs
     local refs = ffi.new("git_strarray")
     local err = git2.git_reference_list(ffi.cast("git_strarray*", refs), repo_obj)
@@ -52,9 +52,6 @@ _M.list_refs = function(repo_obj)
 
     if refs then
         git2.git_strarray_free(ffi.cast("git_strarray*", refs))
-    end
-    if repo_obj then
-        git2.git_repository_free(ffi.cast("git_repository*", repo_obj))
     end
 
     return ret

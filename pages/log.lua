@@ -24,8 +24,10 @@ local _M = function(repo, repo_dir, branch, n, skip)
         {string.format("/%s/tree/%s", repo.name, branch.name), branch.name},
         {string.format("/%s/log/%s", repo.name, branch.name),  "log"}
     }
-    build:add("<h2>"..nav(breadcrumb_nav, " / ").."</h2>")
-    build:add("<p>"..repo.description.."</p>")
+    build{
+        build.h2{nav(breadcrumb_nav, " / ")},
+        build.p{repo.description}
+    }
 
     -- Navigation links
     local navlinks = {
@@ -43,13 +45,12 @@ local _M = function(repo, repo_dir, branch, n, skip)
         })
     end
 
-    build:add([[<div class="nav">]])
-    build:add(nav(navlinks))
-    build:add("</div>")
+    build{
+        build.div{class="nav", nav(navlinks)},
+        build.h3{"Commits"}
+    }
 
     -- Commits table
-    build:add("<h3>Commits</h3>")
-
     local commits_head = git.log(repo_dir, branch.name, path, n, skip, true)
 
     local this_page = string.format("/%s/log/%s", repo.name, branch.name)
@@ -100,7 +101,7 @@ local _M = function(repo, repo_dir, branch, n, skip)
 </span>]]
     controls = controls.."</div>"
 
-    build:add(controls)
+    build{controls}
 
     -- Build commit table
     local commits_table_data = {}
@@ -142,8 +143,7 @@ N: No signature">GPG?</span>]]}
     end
 
     -- Add
-    build:add(tabulate(commits_table_data))
-    build:add(controls)
+    build{tabulate(commits_table_data), controls}
 
     return build
 end

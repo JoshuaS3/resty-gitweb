@@ -20,8 +20,10 @@ local _M = function(repo, repo_dir, branch)
         {string.format("/%s", repo.name),          repo.name},
         {string.format("/%s/download", repo.name), "download"},
     }
-    build:add("<h2>"..nav(breadcrumb_nav, " / ").."</h2>")
-    build:add("<p>"..repo.description.."</p>")
+    build{
+        build.h2{nav(breadcrumb_nav, " / ")},
+        build.p{repo.description}
+    }
 
     -- Navigation links
     local navlinks = {
@@ -39,13 +41,12 @@ local _M = function(repo, repo_dir, branch)
         })
     end
 
-    build:add([[<div class="nav">]])
-    build:add(nav(navlinks))
-    build:add("</div>")
+    build{
+        build.div{class="nav", nav(navlinks)},
+        build.h3{"Download URLs"}
+    }
 
     -- Download URLs
-    build:add("<h3>Download URLs</h3>")
-
     local urls = {}
     urls.class = "download-urls"
     urls.headers = {
@@ -59,10 +60,10 @@ local _M = function(repo, repo_dir, branch)
         table.insert(urls.rows, {split[1], string.format([[<a href="%s">%s</a>]], split[2], split[2])})
     end
 
-    build:add(tabulate(urls))
+    build{tabulate(urls)}
 
     -- Websites
-    build:add("<h3>Websites</h3>")
+    build{build.h3{"Websites"}}
 
     local sites = {}
     sites.class = "websites"
@@ -77,7 +78,7 @@ local _M = function(repo, repo_dir, branch)
         table.insert(sites.rows, {split[1], string.format([[<a href="%s">%s</a>]], split[2], split[2])})
     end
 
-    build:add(tabulate(sites))
+    build{tabulate(sites)}
 
     return build
 end
