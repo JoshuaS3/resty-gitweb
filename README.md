@@ -2,6 +2,8 @@
 
 A git web interface for Lua/OpenResty.
 
+![Sample image](https://joshuas3.s3.amazonaws.com/images/resty-gitweb.png)
+
 ## Requirements
 
 Lua modules (Lua 5.1/LuaJIT 2.1.0/OpenResty LuaJIT compatible, accessible from
