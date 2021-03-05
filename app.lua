@@ -94,7 +94,7 @@ else -- repo found
                 elseif view == "download" then
                     content = require("pages/download")(repo, repo.loc, branch)
                 elseif view == "commit" then
-                    -- /repo/commit/[COMMIT HASH]
+                    content = require("pages/commit")(repo, repo.loc, parsed_uri.parts[3])
                 else
                     error("bad view "..view)
                 end
