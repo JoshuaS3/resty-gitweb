@@ -62,7 +62,7 @@ local _M = function(repo, repo_dir, branch, path)
         build.h3{"Latest Commit"}
     }
 
-    local commit = git.log(repo_dir, branch.name, path.."/", 1, 0, true)[1]
+    local commit = git.log(repo_dir, branch.name, path ~= "" and path.."/" or "", 1, 0, true)[1]
 
     local commits_table_data = {}
     commits_table_data.class = "log"
@@ -184,8 +184,7 @@ N: No signature">GPG?</span>]]}
         local l = split[#split]:lower()
         if l:match("^readme") then
             build{build.h3{"README"}}
-            local success, repo = git.repo.open(repo_dir)
-            if not success then break end
+            local repo = git.repo.open(repo_dir)
             local text = git.read_blob(repo, branch.name, file)
             git.repo.free(repo)
             local s = l:len()

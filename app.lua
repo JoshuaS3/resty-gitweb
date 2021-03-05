@@ -29,7 +29,7 @@ else -- repo found
     end
     if repo then
         repo.loc = PRODUCTION and repo.location.prod or repo.location.dev
-        local repo.obj = git.repo.open(repo.loc)
+        repo.obj = git.repo.open(repo.loc)
         view = parsed_uri.parts[2] or "tree"
         local branch
 

@@ -127,7 +127,7 @@ N: No signature">GPG?</span>]]}
     build{blobheader}
 
     -- File
-    local success, repo_obj = git.repo.open(repo_dir)
+    local repo_obj = git.repo.open(repo_dir)
     local content, is_binary = git.read_blob(repo_obj, branch.name, file_path)
     local content_size = string.len(content)
     git.repo.free(repo_obj)

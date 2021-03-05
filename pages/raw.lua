@@ -24,7 +24,7 @@ local _M = function(repo, repo_dir, branch, file_path)
     local build = builder:new()
 
     -- File
-    local success, repo_obj = git.repo.open(repo_dir)
+    local repo_obj = git.repo.open(repo_dir)
     local content, is_binary = git.read_blob(repo_obj, branch.name, file_path)
     git.repo.free(repo_obj)
 
