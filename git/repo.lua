@@ -6,6 +6,7 @@
 -- This software is licensed under the MIT License.
 
 local ffi = require("ffi")
+local git2_error = require("git/git2_error")
 
 local _M = {}
 
@@ -13,11 +14,8 @@ local _M = {}
 _M.open = function(repo_dir)
     local repo_obj = ffi.new("git_repository*[1]")
     err = git2.git_repository_open(ffi.cast("git_repository**", repo_obj), repo_dir)
-    ret_obj = nil
-    if err == 0 then
-        ret_obj = repo_obj[0]
-    end
-    return err == 0, ret_obj
+    git2_error(err, "Failed to open repository at "..repo_dir)
+    return repo_obj[0]
 end
 
 _M.free = function(repo_obj)

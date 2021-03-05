@@ -28,12 +28,8 @@ else -- repo found
         end
     end
     if repo then
-        repo.loc = repo.location.dev
-        local success, repo_libgit2_object = git.repo.open(repo.loc)
-        if not success then
-            error("Failed to open repository at "..repo.loc)
-        end
-        repo.obj = repo_libgit2_object
+        repo.loc = PRODUCTION and repo.location.prod or repo.location.dev
+        local repo.obj = git.repo.open(repo.loc)
         view = parsed_uri.parts[2] or "tree"
         local branch
 

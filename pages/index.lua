@@ -25,10 +25,10 @@ local _M = function(repos)
 
     for _, repo in pairs(repos) do
         local url = "/"..repo.name
-        local repo_dir = repo.location.dev
+        local repo_dir = PRODUCTION and repo.location.prod or repo.location.dev
 
         -- Latest Commit table
-        local exists, repo_obj = git.repo.open(repo_dir)
+        local repo_obj = git.repo.open(repo_dir)
         local branch = git.find_rev(repo_obj, "HEAD")
         git.repo.free(repo_obj)
         local commit = git.commit(repo_dir, branch.name)
