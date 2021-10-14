@@ -2,7 +2,7 @@
 
 A git web interface for Lua/OpenResty.
 
-![Sample image](https://joshuas3.s3.amazonaws.com/images/resty-gitweb.png)
+![Sample image](https://joshstock.in/static/images/resty-gitweb.png)
 
 ## Requirements
 

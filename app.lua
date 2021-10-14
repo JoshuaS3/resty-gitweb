@@ -285,7 +285,7 @@ if content ~= nil then -- TODO: HTML templates from files, static serving
         ngx.say("</head><body>")
 
         if parsed_uri.repo then
-            local arrow_left_circle = [[<img style="width:1.2em;height:1.2em;vertical-align:middle;margin-right:0.2em" src="https://joshuas3.s3.amazonaws.com/svg/arrow-left.svg"/>]]
+            local arrow_left_circle = [[<img style="width:1.2em;height:1.2em;vertical-align:middle;margin-right:0.2em" src="https://joshstock.in/static/svg/arrow-left.svg"/>]]
             ngx.say("<a style=\"margin-left:-1.35em\" href=\"/\">"..arrow_left_circle.."<span style=\"vertical-align:middle\">Index</span></a>")
         end
         ngx.print(content:build())

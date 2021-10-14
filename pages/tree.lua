@@ -130,8 +130,8 @@ N: No signature">GPG?</span>]]}
         {"shorthash", "Hash"}}
     files_table_data.rows = {}
 
-    local file_icon   = [[<img style="width:1em;height:1em;vertical-align:middle;margin-right:0.5em;" alt="file" src="https://joshuas3.s3.amazonaws.com/svg/file.svg"/>]]
-    local folder_icon = [[<img style="width:1em;height:1em;vertical-align:middle;margin-right:0.5em;fill:#ffe9a2;" alt="folder" src="https://joshuas3.s3.amazonaws.com/svg/folder.svg"/>]]
+    local file_icon   = [[<img style="width:1em;height:1em;vertical-align:middle;margin-right:0.5em;" alt="file" src="https://joshstock.in/static/svg/file.svg"/>]]
+    local folder_icon = [[<img style="width:1em;height:1em;vertical-align:middle;margin-right:0.5em;fill:#ffe9a2;" alt="folder" src="https://joshstock.in/static/svg/folder.svg"/>]]
 
     -- .. directory
     if path ~= "" then
